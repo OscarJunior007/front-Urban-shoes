@@ -38,6 +38,13 @@
             @click="redireccionar('/Proveedores')"
             class="btn-navigation"
           ></v-list-item>
+          <v-list-item
+            prepend-icon="mdi-cash-multiple"
+            title="Gastos"
+            value="gastos"
+            @click="redireccionar('/Gastos')"
+            class="btn-navigation"
+          ></v-list-item>
         </v-list>
 
         <template v-slot:append>

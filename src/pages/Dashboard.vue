@@ -1,41 +1,58 @@
-<template  >
+<template>
   <MenuComponent />
 
-  <v-container
-    fluid
-    class="d-flex flex-column"
-    style="height: 100%; width: 100%"
-  >
-    <section class="d-flex justify-space-evenly align-center flex-wrap">
-      <v-card width="200px" height="100px" class="mb-4 bg-white">
-        <v-card-subtitle> </v-card-subtitle>
-        <v-card-text>
-          <v-card-subtitle> Ingresos totales </v-card-subtitle>
-          <strong> <span class="ml-4 text-h5"> $1.000.000</span></strong>
-        </v-card-text>
-      </v-card>
+  <v-container fluid>
+    <v-row class="justify-center align-center" dense>
+      <v-col
+        v-for="(card, i) in cards"
+        :key="i"
+        cols="12"
+        sm="6"
+        md="4"
+        class="d-flex"
+      >
+        <v-card class="mb-4 bg-white" height="140" style="width: 100%">
+          <v-card-text>
+            <v-card-subtitle>{{ card.title }}</v-card-subtitle>
+            <strong>
+              <span class="ml-4 text-h5">{{ card.value }}</span>
+            </strong>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
-      <v-card width="200px" height="100px" class="mb-4 bg-white">
-        <v-card-subtitle> </v-card-subtitle>
-        <v-card-text>
-          <v-card-subtitle> Pedidos del mes pasado </v-card-subtitle>
-          <strong> <span class="ml-4 text-h5"> 5</span></strong>
-        </v-card-text>
-      </v-card>
-
-      <v-card width="200px" height="100px" class="mb-4 bg-white">
-        <v-card-subtitle> </v-card-subtitle>
-        <v-card-text>
-          <v-card-subtitle> Ingresos totales </v-card-subtitle>
-          <strong> <span class="ml-4 text-h5"> $1.000.000</span></strong>
-        </v-card-text>
-      </v-card>
-    </section>
+    <v-row class="mb-4 mt-6 justify-space-between" dense>
+      <v-col cols="12" sm="6" md="6" class="d-flex">
+        <v-card class="mb-4 bg-white" height="300" style="width: 100%">
+          <v-card-text class="pa-0" style="height: 100%">
+            <GraficaZapatos />
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="6" class="d-flex">
+        <v-card class="mb-4 bg-white" height="300" style="width: 100%">
+          <v-card-text>
+            <strong>
+              <span class="ml-4 text-h5">Vendedores con más ventas</span>
+            </strong>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
-<script>
-export default {};
+<script setup lang="ts">
+import { useDisplay } from "vuetify";
+
+const display = useDisplay();
+
+const cards = [
+  { title: "Ingresos totales", value: "$1.000.000" },
+  { title: "Ordenes totales", value: "100" },
+  { title: "Vendedores activos", value: "15" },
+];
 </script>
 
 <style scoped>
