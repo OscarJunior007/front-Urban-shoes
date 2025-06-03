@@ -12,7 +12,7 @@ export const useEstadisticasStore = defineStore('estadisticas', {
   }),
   actions: {
     async cargarModelosMasVendidos() {
-      const res = await axios.get<ModeloVenta[]>('http://localhost:8000/estadisticas/modelos-mas-vendidos')
+      const res = await axios.get<ModeloVenta[]>('http://localhost:8000/api/estadisticas/modelos-mas-vendidos')
       this.modelos = res.data
     }
   }

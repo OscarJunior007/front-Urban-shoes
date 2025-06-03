@@ -7,7 +7,7 @@
       class="mb-6 mt-4 d-none d-md-flex justify-end align-center mr-4"
     >
       <h5 class="text-h5 font-weight-bold ml-3">Gestión de Usuarios</h5>
-      <v-btn color="primary" class="text-capitalize mr-3"
+      <v-btn @click="dialog= true" color="primary" class="text-capitalize mr-3"
         >Agregar Nuevo Usuario</v-btn
       >
     </v-row>
@@ -28,6 +28,7 @@
         style="width: 180px; height: 70px"
         color="primary"
         class="text-capitalize mr-3 mb-3"
+        @click="dialog = true"  
         >Agregar Nuevo Usuario</v-btn
       >
     </div>
@@ -39,103 +40,173 @@
             <th>USUARIO</th>
             <th>EMAIL</th>
             <th>ROL</th>
-            <th>ALMACÉN</th>
             <th>ESTADO</th>
             <th>ACCIONES</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.email">
+          <tr v-for="user in userList" :key="user?.id">
             <td class="d-flex align-center py-4">
               <v-avatar size="40" color="blue" class="me-4">
                 <span class="text-white text-subtitle1">{{
-                  user.initial
+                 user.first_name.charAt(0)
                 }}</span>
               </v-avatar>
               <div>
-                <div class="font-weight-medium">{{ user.name }}</div>
+                <!-- <div class="font-weight-medium">{{ user.first_name }}</div> -->
                 <div class="text-caption text-grey-darken-1">
-                  {{ user.position }}
+                  {{ user.rol }}
                 </div>
               </div>
             </td>
             <td>{{ user.email }}</td>
             <td>
-              <v-chip :color="user.roleColor" variant="tonal" size="small">
-                {{ user.role }}
+              <v-chip  :color="user.rol == 'ADMIN'? 'blue':'yellow'" variant="tonal" size="small">
+                {{ user.rol }}
               </v-chip>
             </td>
-            <td>{{ user.warehouse }}</td>
+        
             <td>
               <v-chip
-                :color="user.active ? 'green' : 'red'"
+                :color="user.estado =='ACTIVO' ? 'green' : 'red'"
                 variant="tonal"
                 size="small"
               >
-                {{ user.active ? "Activo" : "Inactivo" }}
+                {{ user.estado  }}
               </v-chip>
             </td>
             <td>
-              <v-btn variant="text" size="small" class="text-primary"
+              <v-btn variant="text" size="large" class="text-primary"
                 ><v-icon>mdi-pencil</v-icon></v-btn
               >
-              <v-btn variant="text" size="small" class="text-error"
-                ><v-icon>mdi-delete</v-icon></v-btn
-              >
+             
             </td>
           </tr>
         </tbody>
       </v-table>
     </v-card>
   </v-container>
+
+  <v-dialog  v-show="dialog" v-model="dialog" max-width="600">
+   
+    <v-card>
+      <v-card-title>Registrar Nuevo Usuario</v-card-title>
+      <v-card-text>
+        <v-form ref="formRef" v-model="isValid">
+          <v-text-field
+            label="Correo electrónico"
+            v-model="objUserRegister.email"
+            :rules="[rules.required, rules.email]"
+          />
+          <v-text-field
+            label="Contraseña"
+            v-model="objUserRegister.password"
+            :rules="[rules.required]"
+            
+          />
+          <v-select
+            label="Rol"
+            v-model="loginStore.objUserRegister.rol"
+            :items="['ADMIN', 'VENDEDOR']"
+            :rules="[rules.required]"
+          />
+          <v-text-field
+            label="Nombre"
+            v-model="objUserRegister.first_name"
+          />
+          <v-text-field
+            label="Apellido"
+            v-model="objUserRegister.last_name"  
+          />
+          <v-select
+            label="Estado"
+            v-model="objUserRegister.estado" 
+            :items="['ACTIVO', 'INACTIVO']"
+            :rules="[rules.required]"
+          />
+        </v-form>
+      </v-card-text>
+            <div>
+        <AlertComponent />
+       
+      </div>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn text @click="dialog = false">Cancelar</v-btn>
+        <v-btn color="success" @click="submit" :disabled="!isValid">Guardar</v-btn>
+      </v-card-actions>
+       <v-divider></v-divider>
+
+
+    </v-card>
+  </v-dialog>
+
 </template>
 
 <script setup lang="ts">
-const users = [
-  {
-    name: "Ana García",
-    position: "Operaciones",
-    email: "ana@almacen.com",
-    role: "Gerente",
-    roleColor: "blue-lighten-4",
-    warehouse: "Almacén Principal",
-    active: true,
-    initial: "A",
-  },
-  {
-    name: "Carlos López",
-    position: "Inventario",
-    email: "carlos@almacen.com",
-    role: "Personal",
-    roleColor: "grey-lighten-2",
-    warehouse: "Almacén Principal",
-    active: true,
-    initial: "C",
-  },
-  {
-    name: "María Rodríguez",
-    position: "Ventas",
-    email: "maria@almacen.com",
-    role: "Supervisor",
-    roleColor: "green-lighten-4",
-    warehouse: "Almacén Secundario",
-    active: false,
-    initial: "M",
-  },
-  {
-    name: "David Martínez",
-    position: "Envíos",
-    email: "david@almacen.com",
-    role: "Personal",
-    roleColor: "grey-lighten-2",
-    warehouse: "Centro de Distribución",
-    active: true,
-    initial: "D",
-  },
-];
+import { ref } from 'vue'
+import { useUserLoginStore } from '@/stores/userLogin'  
+import { useErrorSuccessStore } from '@/stores/ErrorSucces'
+import { storeToRefs } from 'pinia'
+import {onMounted} from 'vue'
+  
+const dialog = ref(false)
+const isValid = ref(false)
+const formRef = ref()
+
+const errorSuccessStore = useErrorSuccessStore()  
+
+const loginStore = useUserLoginStore()  
+
+const { objUserRegister,userList } = storeToRefs(loginStore) 
+
+const rules = {
+  required: (v: string) => !!v || 'Campo obligatorio',
+  email: (v: string) => /.+@.+\..+/.test(v) || 'Email inválido',
+}
+
+const submit = async () => {
+  const valid = await formRef.value?.validate()
+  if (!valid) return
+
+  try{
+    const response  = await loginStore.register()
+    if(response.status === 201) {
+      errorSuccessStore.setSuccess('Usuario registrado exitosamente');
+   
+      await loginStore.getAllUsers()
+
+
+    } else {
+      errorSuccessStore.setError('Error al registrar usuario: ' + response.data.detail);
+    } 
+    console.log('Usuario registrado:', response); 
+  }catch (error:any) {
+    if(error.response.status === 400) {
+      errorSuccessStore.setError('Error al registrar usuario: ' + error.response.data.detail);
+    } else {
+      errorSuccessStore.setError('Error al registrar usuario: ' + error.response.data.detail);
+    }
+    console.error('Error al registrar usuario:', error);
+  } 
+
+
+
+}
+
+onMounted(async () =>{
+  try{
+  await loginStore.getAllUsers()
+
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error);
+    errorSuccessStore.setError('Error al obtener usuarios');
+  }
+})
+  
 </script>
 
-<style scoped>
+<style scoped>s
 .v-table thead th {
   font-weight: 600;
   font-size: 14px;

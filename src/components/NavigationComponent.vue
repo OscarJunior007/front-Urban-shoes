@@ -49,7 +49,7 @@
 
         <template v-slot:append>
           <div class="pa-2">
-            <v-btn append-icon="mdi-logout" block color="red" variant="outlined"
+            <v-btn @click="logout" append-icon="mdi-logout" block color="red" variant="outlined"
               >Logout</v-btn
             >
           </div>
@@ -71,9 +71,15 @@
 import { useRouter } from "vue-router";
 import { ref, onMounted, onUnmounted } from "vue";
 import { useAppStore } from "@/stores/app";
-
+import { useUserLoginStore } from "@/stores/userLogin";
 const router = useRouter();
 const appStore = useAppStore();
+const loginStore = useUserLoginStore(); 
+
+const logout = () => {
+  loginStore.logout(router);
+
+};
 
 const isMobile = ref(window.innerWidth < 960);
 

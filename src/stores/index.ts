@@ -1,4 +1,9 @@
 // Utilities
-import { createPinia } from 'pinia'
+import { createPersistedState } from 'pinia-plugin-persistedstate'
 
-export default createPinia()
+import { createPinia } from 'pinia'
+const pinia = createPinia()
+
+pinia.use(createPersistedState())
+
+export default pinia

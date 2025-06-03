@@ -16,11 +16,11 @@
       style="height: 100%; width: 30%; gap: 10px"
     >
       <v-avatar size="30" color="surface-variant">
-        <span class="text-h7">OM</span>
+        <span class="text-h7">{{loginStore.objUser?.first_name.charAt(0)}}{{loginStore.objUser?.last_name.charAt(0)}}</span>
       </v-avatar>
-      <span>Oscar Mejia</span>
+      <span>{{loginStore.objUser?.first_name}} {{ loginStore.objUser?.last_name }}</span>
       <v-chip variant="outlined">
-        <span class="text-h7">admin</span>
+        <span class="text-h7">{{ loginStore.objUser?.rol }}</span>
       </v-chip>
     </div>
     <!-- Info usuario compacta solo en mobile -->
@@ -29,10 +29,10 @@
       style="height: 100%; gap: 6px"
     >
       <v-avatar size="30" color="surface-variant">
-        <span class="text-h7">OM</span>
+        <span class="text-h7">{{loginStore.objUser?.first_name.charAt(0)}}{{loginStore.objUser?.last_name.charAt(0)}}</span>
       </v-avatar>
       <v-chip variant="outlined">
-        <span class="text-h7">admin</span>
+        <span class="text-h7">{{loginStore.objUser?.rol}}</span>
       </v-chip>
     </div>
   </v-toolbar>
@@ -41,9 +41,15 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { useAppStore } from "@/stores/app";
+import { useUserLoginStore} from "@/stores/userLogin";
+
+import { ref } from "vue";
 
 const route = useRoute();
 const appStore = useAppStore();
+const loginStore = useUserLoginStore();
+const dataUser =  ref(null);
+
 </script>
 
 <style scoped>
