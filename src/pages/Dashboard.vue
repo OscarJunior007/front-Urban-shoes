@@ -4,18 +4,26 @@
   <v-container fluid>
     <v-row class="justify-center align-center" dense>
       <v-col
-        v-for="(card, i) in cards"
-        :key="i"
-        cols="12"
-        sm="6"
-        md="4"
-        class="d-flex"
+       
       >
         <v-card class="mb-4 bg-white" height="140" style="width: 100%">
           <v-card-text>
-            <v-card-subtitle>{{ card.title }}</v-card-subtitle>
+            <v-card-subtitle>Ingresos totales</v-card-subtitle>
             <strong>
-              <span class="ml-4 text-h5">{{ card.value }}</span>
+              <span class="ml-4 text-h5">1.000.000</span>
+            </strong>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+        <v-col
+       
+      >
+        <v-card class="mb-4 bg-white" height="140" style="width: 100%">
+          <v-card-text>
+            <v-card-subtitle>Usuarios activos</v-card-subtitle>
+            <strong>
+              <span class="ml-4 text-h5">{{ totalUsersActivos }}</span>
             </strong>
           </v-card-text>
         </v-card>
@@ -48,15 +56,19 @@ import { useDisplay } from "vuetify";
 import {onMounted} from "vue";
 import {useUserLoginStore} from "@/stores/userLogin"; 
 import { useRouter } from 'vue-router'
-
+import { storeToRefs } from "pinia";
 const display = useDisplay();
 const router = useRouter();
 const loginStore = useUserLoginStore(); 
 
+const {totalUsersActivos} = storeToRefs(loginStore);
+
+
 const cards = [
   { title: "Ingresos totales", value: "$1.000.000" },
   { title: "Ordenes totales", value: "100" },
-  { title: "Vendedores activos", value: "15" },
+
+
 ];
 
 onMounted(async ()  => {
@@ -64,7 +76,7 @@ onMounted(async ()  => {
 
 
    const dataUser =  await loginStore.getMe();
-   
+   loginStore.getAllUsers();
    console.log("Datos del usuario:", dataUser);
    if (dataUser.status !== 200) router.push("/");
     

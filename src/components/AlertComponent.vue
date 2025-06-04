@@ -1,5 +1,6 @@
 <template>
   <v-alert
+    
     v-if="errorSuccessStore.messageError"
     type="error"
     class="mt-4"

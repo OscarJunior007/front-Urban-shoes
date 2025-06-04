@@ -28,6 +28,8 @@
             prepend-icon="mdi-account-group"
             title="Usuarios"
             value="shared"
+       
+            v-if="objUser?.rol === 'ADMIN'"
             @click="redireccionar('/Usuarios')"
             class="btn-navigation"
           ></v-list-item>
@@ -35,6 +37,8 @@
             prepend-icon="mdi-truck-outline"
             title="Proveedores"
             value="starred"
+            v-if="objUser?.rol === 'ADMIN'"
+
             @click="redireccionar('/Proveedores')"
             class="btn-navigation"
           ></v-list-item>
@@ -42,6 +46,8 @@
             prepend-icon="mdi-cash-multiple"
             title="Gastos"
             value="gastos"
+            v-if="objUser?.rol === 'ADMIN'"
+
             @click="redireccionar('/Gastos')"
             class="btn-navigation"
           ></v-list-item>
@@ -72,14 +78,18 @@ import { useRouter } from "vue-router";
 import { ref, onMounted, onUnmounted } from "vue";
 import { useAppStore } from "@/stores/app";
 import { useUserLoginStore } from "@/stores/userLogin";
+import {storeToRefs} from "pinia";
 const router = useRouter();
 const appStore = useAppStore();
 const loginStore = useUserLoginStore(); 
+const { objUser } = storeToRefs(loginStore);
 
 const logout = () => {
   loginStore.logout(router);
 
 };
+
+
 
 const isMobile = ref(window.innerWidth < 960);
 

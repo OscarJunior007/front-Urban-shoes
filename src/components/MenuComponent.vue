@@ -43,12 +43,10 @@ import { useRoute } from "vue-router";
 import { useAppStore } from "@/stores/app";
 import { useUserLoginStore} from "@/stores/userLogin";
 
-import { ref } from "vue";
 
 const route = useRoute();
 const appStore = useAppStore();
 const loginStore = useUserLoginStore();
-const dataUser =  ref(null);
 
 </script>
 

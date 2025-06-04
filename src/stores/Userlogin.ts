@@ -24,7 +24,7 @@ interface IUserRegister {
 }
 interface IState {
     objLogin: IUserLogin
-    baseUrl: string
+    // baseUrl: string
     accessToken?: string
     loading?: boolean
     objUser?: iDataUser
@@ -38,11 +38,18 @@ interface IState {
 export const useUserLoginStore = defineStore('userLogin', {
     state: (): IState => ({
         objLogin: { username: '', password: '' },
-        baseUrl: 'http://localhost:8000',
+        // baseUrl: '',
         accessToken: undefined,
         loading: false,
         objUserRegister: { email: '', password: '', rol: 'VENDEDOR', first_name: '', last_name: '', estado: 'ACTIVO' },
-        objUser: undefined,
+        objUser: {
+            id: '',
+            email: '',
+            first_name: '',
+            last_name: '',
+            rol: '',         // o un rol por defecto, por ejemplo: 'INVITADO'
+            estado: ''
+        },
         userList: undefined
     }),
     actions: {
@@ -53,7 +60,7 @@ export const useUserLoginStore = defineStore('userLogin', {
                 payload.append('username', this.objLogin.username)
                 payload.append('password', this.objLogin.password)
 
-                const response = await axios.post(`${this.baseUrl}/api/users/login`, payload, {
+                const response = await axios.post(`http://localhost:8000/api/users/login`, payload, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
@@ -70,14 +77,13 @@ export const useUserLoginStore = defineStore('userLogin', {
         },
         async register(): Promise<AxiosResponse> {
             try {
-                const response = await axios.post(`${this.baseUrl}/api/users/signup`, this.objUserRegister, {
+                const response = await axios.post(`http://localhost:8000/api/users/signup`, this.objUserRegister, {
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${this.accessToken}` 
                     },
                 })
                 this.objUserRegister = { email: '', password: '', rol: 'VENDEDOR', first_name: '', last_name: '', estado: 'ACTIVO' }
-               
                 return response
             } catch (error) {
                 throw error
@@ -85,7 +91,7 @@ export const useUserLoginStore = defineStore('userLogin', {
         },
         async getMe(): Promise<AxiosResponse> {
             try {
-                const response = await axios.get(`${this.baseUrl}/api/me`, {
+                const response = await axios.get(`http://localhost:8000/api/me`, {
                     headers: {
                         Authorization: `Bearer ${this.accessToken}`
                     }
@@ -99,12 +105,15 @@ export const useUserLoginStore = defineStore('userLogin', {
         logout(router: any): void {
             this.accessToken = undefined
             this.objUser = undefined
+            this.userList = undefined
+            this.objLogin = { username: '', password: '' }
+
             localStorage.clear()
             router.push('/')
         },
         async getAllUsers(): Promise<AxiosResponse> {   
             try {
-                const response = await axios.get(`${this.baseUrl}/api/users`, {
+                const response = await axios.get(`http://localhost:8000/api/users`, {
                     headers: {
                         Authorization: `Bearer ${this.accessToken}`
                     }
@@ -116,6 +125,11 @@ export const useUserLoginStore = defineStore('userLogin', {
                 throw error
             }
         }   
+    },
+    getters: {
+        totalUsersActivos: (state) => {
+            return state.userList ? state.userList.filter(user => user.estado === 'ACTIVO').length : 0
+        }
     },
     persist: true
 })
