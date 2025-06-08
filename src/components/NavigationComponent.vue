@@ -11,10 +11,14 @@
         app
       >
         <div
-          class="bg-blue d-flex justify-center align-center v-col-auto"
-          style="height: 10%"
+          class="bg-blue d-flex justify-center align-center v-col-auto mb-3"
+          style="height: 20%; padding: 5px"
         >
-          <strong> <span> ELITE SHOES </span></strong>
+          <img
+            src="../assets/LogoUrban.webp"
+            alt=""
+            style="width: 100%; height: auto"
+          />
         </div>
         <v-list class="pa-4" density="compact" nav>
           <v-list-item
@@ -28,7 +32,6 @@
             prepend-icon="mdi-account-group"
             title="Usuarios"
             value="shared"
-       
             v-if="objUser?.rol === 'ADMIN'"
             @click="redireccionar('/Usuarios')"
             class="btn-navigation"
@@ -38,7 +41,6 @@
             title="Proveedores"
             value="starred"
             v-if="objUser?.rol === 'ADMIN'"
-
             @click="redireccionar('/Proveedores')"
             class="btn-navigation"
           ></v-list-item>
@@ -47,15 +49,26 @@
             title="Gastos"
             value="gastos"
             v-if="objUser?.rol === 'ADMIN'"
-
             @click="redireccionar('/Gastos')"
+            class="btn-navigation"
+          ></v-list-item>
+          <v-list-item
+            prepend-icon="mdi-arrow-up-bold-box"
+            title="Realizar pedido"
+            value="pedidos"
+            @click="redireccionar('/RealizarPedido')"
             class="btn-navigation"
           ></v-list-item>
         </v-list>
 
         <template v-slot:append>
           <div class="pa-2">
-            <v-btn @click="logout" append-icon="mdi-logout" block color="red" variant="outlined"
+            <v-btn
+              @click="logout"
+              append-icon="mdi-logout"
+              block
+              color="red"
+              variant="outlined"
               >Logout</v-btn
             >
           </div>
@@ -78,18 +91,15 @@ import { useRouter } from "vue-router";
 import { ref, onMounted, onUnmounted } from "vue";
 import { useAppStore } from "@/stores/app";
 import { useUserLoginStore } from "@/stores/userLogin";
-import {storeToRefs} from "pinia";
+import { storeToRefs } from "pinia";
 const router = useRouter();
 const appStore = useAppStore();
-const loginStore = useUserLoginStore(); 
+const loginStore = useUserLoginStore();
 const { objUser } = storeToRefs(loginStore);
 
 const logout = () => {
   loginStore.logout(router);
-
 };
-
-
 
 const isMobile = ref(window.innerWidth < 960);
 

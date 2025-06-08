@@ -20,7 +20,19 @@
 
 <script setup>
 import { useErrorSuccessStore } from '@/stores/ErrorSucces'
+import { watch } from 'vue'
 const errorSuccessStore = useErrorSuccessStore()
+
+watch(
+  () => [errorSuccessStore.messageError, errorSuccessStore.messageSucces],
+  ([error, success]) => {
+    if (error || success) {
+      setTimeout(() => {
+        errorSuccessStore.clearMessages()
+      }, 2000)
+    }
+  }
+)
 </script>
 
 <style>

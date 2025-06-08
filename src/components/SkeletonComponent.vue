@@ -5,10 +5,7 @@
 
 <script setup lang="ts">
 const props = defineProps({
-  skeletonActive: {
-    type: Boolean,
-    default: true
-  },
+
   type: {
     type: String,
     default: 'table' 

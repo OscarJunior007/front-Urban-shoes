@@ -1,11 +1,12 @@
 <template>
   <v-app>
-    <template v-if="route.path !== '/'">
+    <template v-if="route.path !== '/' && route.path !== '/RealizarPedido'">
       <NavigationComponent></NavigationComponent>
     </template>
 
-    <template v-if="route.path == '/'">
-      <router-view />
+       <template v-if="route.path == '/' || route.path == '/RealizarPedido' ">
+          <router-view />
+
     </template>
   </v-app>
 </template>
@@ -15,7 +16,6 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 </script>
-
 
 <style>
 body {

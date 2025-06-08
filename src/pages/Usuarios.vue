@@ -33,7 +33,7 @@
       >
     </div>
 
-    <SkeletonComponent v-if="skeletonActive" type="table" />
+    <SkeletonComponent v-if="skeletonActive"  type="table" />
     <v-card v-show="!skeletonActive" class="rounded-lg bg-white">
       <v-table>
         <thead>
@@ -81,7 +81,7 @@
               </v-chip>
             </td>
             <td>
-              <v-btn variant="text" size="large" class="text-primary"
+              <v-btn @click="setUserEdit(user),dialogEdit = true" variant="text" size="large" class="text-primary"
                 ><v-icon>mdi-pencil</v-icon></v-btn
               >
             </td>
@@ -89,6 +89,7 @@
         </tbody>
       </v-table>
     </v-card>
+  
   </v-container>
 
   <v-dialog v-show="dialog" v-model="dialog" max-width="600">
@@ -104,7 +105,7 @@
       <div v-show="!skeletonActive">
         <v-card-title>Registrar Nuevo Usuario</v-card-title>
         <v-card-text>
-          <v-form ref="formRef" v-model="isValid">
+          <v-form @submit.prevent="submit" ref="formRef" v-model="isValid">
             <v-text-field
               label="Correo electrónico"
               v-model="objUserRegister.email"
@@ -117,7 +118,7 @@
             />
             <v-select
               label="Rol"
-              v-model="loginStore.objUserRegister.rol"
+              v-model="objUserRegister.rol"
               :items="['ADMIN', 'VENDEDOR']"
               :rules="[rules.required]"
             />
@@ -141,7 +142,7 @@
       </div>
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click="dialog = false">Cancelar</v-btn>
+        <v-btn text @click="dialog = false">Cerrar ventana</v-btn>
         <v-btn color="success" @click="submit" :disabled="!isValid"
           >Guardar</v-btn
         >
@@ -149,6 +150,65 @@
       <v-divider></v-divider>
     </v-card>
   </v-dialog>
+
+  <v-dialog v-show="dialogEdit" v-model="dialogEdit" max-width="600">
+    <v-card>
+      <div>
+        <SkeletonComponent v-if="skeletonActive" type="text" />
+        <SkeletonComponent v-if="skeletonActive" type="text" />
+        <SkeletonComponent v-if="skeletonActive" type="text" />
+        <SkeletonComponent v-if="skeletonActive" type="text" />
+        <SkeletonComponent v-if="skeletonActive" type="text" />
+        <SkeletonComponent v-if="skeletonActive" type="text" />
+      </div>
+      <div v-show="!skeletonActive">
+        <v-card-title>Editar Usuario</v-card-title>
+        <v-card-text>
+          <v-form @submit.prevent="submitEdit" ref="formRef" v-model="isValid">
+            <v-text-field
+              label="Correo electrónico"
+              v-model="userToedit.email"
+              :rules="[rules.required, rules.email]"
+            />
+            <v-select
+              label="Rol"
+              v-model="userToedit.rol"
+              :items="['ADMIN', 'VENDEDOR']"
+              :rules="[rules.required]"
+            />
+            <v-text-field :rules="[rules.required]" label="Nombre" v-model="userToedit.first_name " 
+            
+            />
+            <v-text-field
+              label="Apellido"
+              v-model="userToedit.last_name"
+              :rules="[rules.required]"
+
+            />
+            <v-select
+              label="Estado"
+              v-model="userToedit.estado"
+              :items="['ACTIVO', 'INACTIVO']"
+              :rules="[rules.required]"
+            />
+          </v-form>
+        </v-card-text>
+      </div>
+
+      <div>
+        <AlertComponent />
+      </div>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn text @click="dialogEdit = false">Cerrar ventana</v-btn>
+        <v-btn color="success" @click="submitEdit" :disabled="!isValid"
+          >Guardar</v-btn
+        >
+      </v-card-actions>
+      <v-divider></v-divider>
+    </v-card>
+  </v-dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -159,40 +219,74 @@ import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 
+interface iDataUser {
+    id: string
+    email: string
+    first_name: string
+    last_name: string
+    rol: string
+    estado: string  
+}
+
 const router = useRouter();
 const skeletonActive = ref(false);
 const dialog = ref(false);
+const dialogEdit = ref(false);
+
 const isValid = ref(false);
 const formRef = ref();
 
 const errorSuccessStore = useErrorSuccessStore();
+const userToedit = ref()
 
 const loginStore = useUserLoginStore();
 
-const { objUserRegister, userList } = storeToRefs(loginStore);
+const setUserEdit = (user:iDataUser) =>{
+    console.log("datos del usuario a editar: ",user)
+    userToedit.value = {...user}
+}
+
+const { objUserRegister, userList,objUser } = storeToRefs(loginStore);
 
 const rules = {
   required: (v: string) => !!v || "Campo obligatorio",
   email: (v: string) => /.+@.+\..+/.test(v) || "Email inválido",
 };
 
-const submit = async () => {
-  const valid = await formRef.value?.validate();
+const submitEdit = async () =>{
+  const valid = await  formRef.value?.validate();
   if (!valid) return;
 
-  skeletonActive.value = true; // Activa el skeleton
+  try{
+    await loginStore.editUser(userToedit.value)
+    errorSuccessStore.setSuccess("Usuario actualizado exitosamente");
+    dialogEdit.value = false
+  }catch(error){
+      errorSuccessStore.setError(`No se pudo editar el usuario ${error}`);
+
+  }
+}
+
+const submit = async () => {
+  const valid = await formRef.value?.validate();
+  console.log("el formulario no es valido")
+  if (!valid) return;
+
+  skeletonActive.value = true; 
 
   try {
     const response = await loginStore.register();
     if (response.status === 201) {
       errorSuccessStore.setSuccess("Usuario registrado exitosamente");
       await loginStore.getAllUsers();
+      skeletonActive.value = false; 
+      dialog.value = false;
     } else {
       errorSuccessStore.setError(
         "Error al registrar usuario: " + response.data.detail
       );
     }
-    console.log("Usuario registrado:", response);
+
   } catch (error: any) {
     if (error.response && error.response.status === 400) {
       errorSuccessStore.setError(
@@ -205,9 +299,7 @@ const submit = async () => {
       );
     }
     console.error("Error al registrar usuario:", error);
-  } finally {
-    skeletonActive.value = false; 
-  }
+  } 
 };
 
 onMounted(async () => {

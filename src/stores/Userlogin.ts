@@ -14,6 +14,7 @@ interface iDataUser {
     estado: string  
 }
 
+
 interface IUserRegister {
     email: string
     password: string
@@ -31,6 +32,7 @@ interface IState {
     router?: typeof useRouter
     objUserRegister: IUserRegister
     userList:[iDataUser] | undefined
+ 
 }
 
 
@@ -38,7 +40,6 @@ interface IState {
 export const useUserLoginStore = defineStore('userLogin', {
     state: (): IState => ({
         objLogin: { username: '', password: '' },
-        // baseUrl: '',
         accessToken: undefined,
         loading: false,
         objUserRegister: { email: '', password: '', rol: 'VENDEDOR', first_name: '', last_name: '', estado: 'ACTIVO' },
@@ -108,7 +109,9 @@ export const useUserLoginStore = defineStore('userLogin', {
             this.userList = undefined
             this.objLogin = { username: '', password: '' }
 
-            localStorage.clear()
+            localStorage.removeItem('userLogin');
+            
+            localStorage.clear(); 
             router.push('/')
         },
         async getAllUsers(): Promise<AxiosResponse> {   
@@ -124,8 +127,29 @@ export const useUserLoginStore = defineStore('userLogin', {
             } catch (error) {
                 throw error
             }
-        }   
+        },
+        async editUser(user:iDataUser){
+        try{
+            const response =  await axios.put(`http://localhost:8000/api/users/${user.id}`, user, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${this.accessToken}`
+                }
+             
+            })
+            if (this.userList && response.status == 200) {
+                const index = this.userList.findIndex(u => u.id === user.id)
+                if (index !== -1) {
+                    this.userList[index] = { ...this.userList[index], ...user }
+                }
+            }
+        }catch (error) {
+            throw error
+        }
+    }
+
     },
+    
     getters: {
         totalUsersActivos: (state) => {
             return state.userList ? state.userList.filter(user => user.estado === 'ACTIVO').length : 0

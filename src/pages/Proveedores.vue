@@ -95,26 +95,26 @@
                 class="text-capitalize"
                 color="primary"
                 variant="text"
-                size="x-small"
+                size="large"
               >
                 Editar Proveedor
               </v-btn>
-              <v-btn
+              <!-- <v-btn
                 class="text-capitalize"
                 color="success"
                 variant="text"
-                size="x-small"
+                size="x-small"s
               >
                 Pedido
-              </v-btn>
-              <v-btn
+              </v-btn> -->
+              <!-- <v-btn
                 class="text-capitalize"
                 color="red"
                 variant="text"
                 size="x-small"
               >
                 Deshabilitar
-              </v-btn>
+              </v-btn> -->
             </div>
           </v-card-item>
         </v-card>
