@@ -143,7 +143,7 @@
               Cantidad de zapatos del cliente
               {{ pedidoStore.pedidoObj.compradores[index].cantidadZapatos }}
               <v-spacer></v-spacer>
-              <v-btn icon @click="pedidoStore.agregarZapato(index)">
+              <v-btn icon @click="pedidoStore.agregarZapato(index, route.path)">
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </v-card-title>
@@ -222,12 +222,13 @@ import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 const pedidoStore = usePedidosStore();
 import { useUserLoginStore } from "@/stores/userLogin";
-import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 const { getMe } = useUserLoginStore();
 // watch(mensaje, (nuevoValor) => {
 //   console.log(nuevoValor);
 // });
 
+const route = useRoute();
 const rules = {
   required: (v) => !!v || "Campo obligatorio",
 };
@@ -240,26 +241,25 @@ const idUser = ref("");
 onMounted(async () => {
   try {
     const response = await getMe();
-    const nombre =  response.data.first_name
-    const apellido =  response.data.last_name
-    nombreUser.value = nombre+apellido
-    idUser.value = response.data.id
+    if (dataUser.status !== 200) router.push("/");
+
+    const nombre = response.data.first_name;
+    const apellido = response.data.last_name;
+    nombreUser.value = nombre + apellido;
+    idUser.value = response.data.id;
   } catch (error) {
-    console.log(error.response.data.first_name);
+    if (error.response.status !== 200) route.push("/");
   }
 
   //   if (response.status !== 200) router.push("/");
 });
 
-
-
 const enviarFormulario = async () => {
   const valid = await formRef.value?.validate();
-  console.log("el formulario no es valido");
 
   if (!valid) return;
   try {
-    const response = await pedidoStore.crearPedido(nombreUser.value, idUser.value);
+    await pedidoStore.crearPedido(nombreUser.value, idUser.value, route.path);
     return;
   } catch (error) {
     console.error("Error al enviar pedido:", error);

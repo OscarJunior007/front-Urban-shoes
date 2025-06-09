@@ -45,7 +45,8 @@ onMounted(async ()  => {
    const dataUser =  await loginStore.getMe();
    
    console.log("Datos del usuario:", dataUser);
-   if (dataUser.status !== 200) router.push("/");
+       if (dataUser.status !== 200 || dataUser.data.rol != "ADMIN") router.push("/");
+
     
   } catch (error) {
     console.error("Error al obtener los datos del usuario:", error);

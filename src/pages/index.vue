@@ -76,7 +76,7 @@ const handleSubmit = async () => {
 
   try {
     await loginStore.login()
-    router.push('/Dashboard')  
+    router.push('/Welcome')  
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status

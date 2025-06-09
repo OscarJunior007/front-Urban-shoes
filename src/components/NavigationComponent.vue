@@ -22,6 +22,7 @@
         </div>
         <v-list class="pa-4" density="compact" nav>
           <v-list-item
+            v-if="objUser?.rol === 'ADMIN'"
             prepend-icon="mdi-monitor-dashboard"
             title="Dashboard"
             value="myfiles"
@@ -57,6 +58,14 @@
             title="Realizar pedido"
             value="pedidos"
             @click="redireccionar('/RealizarPedido')"
+            class="btn-navigation"
+          ></v-list-item>
+          <v-list-item
+            v-if="objUser?.rol === 'ADMIN'"
+            prepend-icon="mdi-airplane"
+            title="Registrar pedido"
+            value="pediosProveedores"
+            @click="redireccionar('/PedidoProveedor')"
             class="btn-navigation"
           ></v-list-item>
         </v-list>

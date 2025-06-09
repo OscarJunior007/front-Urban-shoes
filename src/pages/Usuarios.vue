@@ -33,7 +33,7 @@
       >
     </div>
 
-    <SkeletonComponent v-if="skeletonActive"  type="table" />
+    <SkeletonComponent v-if="skeletonActive" type="table" />
     <v-card v-show="!skeletonActive" class="rounded-lg bg-white">
       <v-table>
         <thead>
@@ -81,7 +81,11 @@
               </v-chip>
             </td>
             <td>
-              <v-btn @click="setUserEdit(user),dialogEdit = true" variant="text" size="large" class="text-primary"
+              <v-btn
+                @click="setUserEdit(user), (dialogEdit = true)"
+                variant="text"
+                size="large"
+                class="text-primary"
                 ><v-icon>mdi-pencil</v-icon></v-btn
               >
             </td>
@@ -89,7 +93,6 @@
         </tbody>
       </v-table>
     </v-card>
-  
   </v-container>
 
   <v-dialog v-show="dialog" v-model="dialog" max-width="600">
@@ -176,14 +179,15 @@
               :items="['ADMIN', 'VENDEDOR']"
               :rules="[rules.required]"
             />
-            <v-text-field :rules="[rules.required]" label="Nombre" v-model="userToedit.first_name " 
-            
+            <v-text-field
+              :rules="[rules.required]"
+              label="Nombre"
+              v-model="userToedit.first_name"
             />
             <v-text-field
               label="Apellido"
               v-model="userToedit.last_name"
               :rules="[rules.required]"
-
             />
             <v-select
               label="Estado"
@@ -208,7 +212,6 @@
       <v-divider></v-divider>
     </v-card>
   </v-dialog>
-
 </template>
 
 <script setup lang="ts">
@@ -220,12 +223,12 @@ import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 interface iDataUser {
-    id: string
-    email: string
-    first_name: string
-    last_name: string
-    rol: string
-    estado: string  
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  rol: string;
+  estado: string;
 }
 
 const router = useRouter();
@@ -237,56 +240,54 @@ const isValid = ref(false);
 const formRef = ref();
 
 const errorSuccessStore = useErrorSuccessStore();
-const userToedit = ref()
+const userToedit = ref();
 
 const loginStore = useUserLoginStore();
 
-const setUserEdit = (user:iDataUser) =>{
-    console.log("datos del usuario a editar: ",user)
-    userToedit.value = {...user}
-}
+const setUserEdit = (user: iDataUser) => {
+  console.log("datos del usuario a editar: ", user);
+  userToedit.value = { ...user };
+};
 
-const { objUserRegister, userList,objUser } = storeToRefs(loginStore);
+const { objUserRegister, userList, objUser } = storeToRefs(loginStore);
 
 const rules = {
   required: (v: string) => !!v || "Campo obligatorio",
   email: (v: string) => /.+@.+\..+/.test(v) || "Email inválido",
 };
 
-const submitEdit = async () =>{
-  const valid = await  formRef.value?.validate();
+const submitEdit = async () => {
+  const valid = await formRef.value?.validate();
   if (!valid) return;
 
-  try{
-    await loginStore.editUser(userToedit.value)
+  try {
+    await loginStore.editUser(userToedit.value);
     errorSuccessStore.setSuccess("Usuario actualizado exitosamente");
-    dialogEdit.value = false
-  }catch(error){
-      errorSuccessStore.setError(`No se pudo editar el usuario ${error}`);
-
+    dialogEdit.value = false;
+  } catch (error) {
+    errorSuccessStore.setError(`No se pudo editar el usuario ${error}`);
   }
-}
+};
 
 const submit = async () => {
   const valid = await formRef.value?.validate();
-  console.log("el formulario no es valido")
+  console.log("el formulario no es valido");
   if (!valid) return;
 
-  skeletonActive.value = true; 
+  skeletonActive.value = true;
 
   try {
     const response = await loginStore.register();
     if (response.status === 201) {
       errorSuccessStore.setSuccess("Usuario registrado exitosamente");
       await loginStore.getAllUsers();
-      skeletonActive.value = false; 
+      skeletonActive.value = false;
       dialog.value = false;
     } else {
       errorSuccessStore.setError(
         "Error al registrar usuario: " + response.data.detail
       );
     }
-
   } catch (error: any) {
     if (error.response && error.response.status === 400) {
       errorSuccessStore.setError(
@@ -299,15 +300,16 @@ const submit = async () => {
       );
     }
     console.error("Error al registrar usuario:", error);
-  } 
+  }
 };
 
 onMounted(async () => {
   try {
     const dataUser = await loginStore.getMe();
-
+    loginStore.getAllUsers();
     console.log("Datos del usuario:", dataUser);
-    if (dataUser.status !== 200) router.push("/");
+    if (dataUser.status !== 200 || dataUser.data.rol != "ADMIN") router.push("/");
+
 
     // await loginStore.getAllUsers();
     // skeletonActive.value = false;

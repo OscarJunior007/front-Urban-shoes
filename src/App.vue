@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <template v-if="route.path !== '/' && route.path !== '/RealizarPedido'">
+    <template v-if="route.path !== '/' && route.path !== '/RealizarPedido'  && route.path !== '/PedidoProveedor'">
       <NavigationComponent></NavigationComponent>
     </template>
 
-       <template v-if="route.path == '/' || route.path == '/RealizarPedido' ">
+       <template v-if="route.path == '/' || route.path == '/RealizarPedido' || route.path == '/PedidoProveedor' ">
           <router-view />
 
     </template>
