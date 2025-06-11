@@ -147,7 +147,7 @@
             </div>
 
             <!-- Paginación -->
-            <div class="mt-8 flex justify-center">
+            <!-- <div class="mt-8 flex justify-center">
               <nav class="flex space-x-2">
                 <button
                   class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-100 transition"
@@ -173,7 +173,7 @@
                   Siguiente
                 </button>
               </nav>
-            </div>
+            </div> -->
           </main>
         </div>
       </div>
