@@ -4,10 +4,11 @@ import { useRoute } from 'vue-router';
 import { standardEasing } from 'vuetify/lib/util/easing.mjs';
 
 interface Izapato {
-    modelo: string;
-    talla: string;
-    color: string;
-    precio: number;
+    genero: string;
+    marca: string;
+    precioVenta: number;
+    referencia: string
+    talla: string
     // cantidad: number;
 }
 
@@ -72,7 +73,7 @@ interface IState {
 export const usePedidosStore = defineStore('Pedidos', {
     state: (): IState => ({
         pedidoObj: {
-            vendedorId: "ASD",
+            vendedorId: "",
             fechaPedido: new Date().toISOString(),
             notas: "",
             cantidadZapatos: 0,
@@ -103,16 +104,20 @@ export const usePedidosStore = defineStore('Pedidos', {
 
 
             if (path == "/RealizarPedido") {
+               
                 this.pedidoObj.vendedorId = id;
                 this.pedidoObj.nombreVendedor = nombre;
                 this.pedidoObj.cantidadZapatos = parseFloat(String(this.getCantidadTotalZapatos()));
+                console.log("cantidad de zapatos: ", this.pedidoObj.cantidadZapatos)
                 this.pedidoObj.total = parseFloat(String(this.getTotalPedido()));
                 this.pedidoObj.compradores.forEach(comprador => {
+                    comprador.cantidadZapatos = comprador.zapatos.length
+                    comprador.cantidadZapatos = parseInt(String(comprador.cantidadZapatos)) || 0;
                     comprador.abono = parseFloat(String(comprador.abono));
                     comprador.zapatos.forEach(zapato => {
-                        zapato.precio = parseFloat(String(zapato.precio));
+                        zapato.precioVenta = parseFloat(String(zapato.precioVenta));
                     });
-                    const totalZapatos = comprador.zapatos.reduce((sum, zapato) => sum + (zapato.precio || 0), 0);
+                    const totalZapatos = comprador.zapatos.reduce((sum, zapato) => sum + (zapato.precioVenta || 0), 0);
                     comprador.total = parseFloat((totalZapatos - (comprador.abono || 0)).toFixed(2));
                 });
 
@@ -124,6 +129,7 @@ export const usePedidosStore = defineStore('Pedidos', {
                     return response.data
 
                 } catch (error: any) {
+                    console.log("cantidad de zapatos: ", this.pedidoObj.cantidadZapatos)
                     console.log(error.response.status)
                     throw error
 
@@ -163,29 +169,24 @@ export const usePedidosStore = defineStore('Pedidos', {
             })
         },
 
-        agregarZapato(index: number | null, path: string) {
+        agregarZapato(index: number | null, path: string, obj: Izapato) {
             console.log("path que llega: ", path)
             if (path == "/RealizarPedido") {
                 if (index === null || index === undefined) {
                     this.mensaje = "No se puede agregar zapato: index no definido";
                     return;
                 }
-                let cantidad = this.pedidoObj.compradores[index].cantidadZapatos;
+                // let cantidad = this.pedidoObj.compradores[index].cantidadZapatos;
                 let nombreCliente = this.pedidoObj.compradores[index].nombre;
-                if (cantidad === 0) {
-                    this.mensaje = `te faltan la cantidad de zapatos para el cliente ${nombreCliente}`;
-                    console.log(this.mensaje);
-                    return;
-                }
-                this.pedidoObj.compradores[index].zapatos = [];
-                for (let i = 0; i < cantidad; i++) {
-                    this.pedidoObj.compradores[index].zapatos.push({
-                        modelo: "",
-                        talla: "",
-                        color: "",
-                        precio: 0,
-                    });
-                }
+                // if (cantidad === 0) {
+                //     this.mensaje = `te faltan la cantidad de zapatos para el cliente ${nombreCliente}`;
+                //     console.log(this.mensaje);
+                //     return;
+                // }
+                // this.pedidoObj.compradores[index].zapatos = [];
+
+                this.pedidoObj.compradores[index].zapatos.push(obj);
+                console.log("array de zapatos, cliente: ", this.pedidoObj.compradores[index].zapatos)
                 return;
             }
 
@@ -209,8 +210,17 @@ export const usePedidosStore = defineStore('Pedidos', {
                 throw error;
             }
         },
+        zapatosClientes(index: number): any[] {
+            return Array.isArray(this.pedidoObj.compradores?.[index]?.zapatos)
+                ? this.pedidoObj.compradores[index].zapatos
+                : [];
+        },
         eliminarCliente(index: number) {
             this.pedidoObj.compradores.splice(index, 1)
+        },
+        eliminarZapatoCliente(index: number, indexCliente: number) {
+            console.log("se ejecuto la funcion..")
+            this.pedidoObj.compradores[indexCliente].zapatos.splice(index, 1)
         },
         getCantidadTotalZapatos(): number {
             return this.pedidoObj.compradores.reduce(
@@ -221,7 +231,7 @@ export const usePedidosStore = defineStore('Pedidos', {
         getTotalPedido(): number {
             return this.pedidoObj.compradores.reduce(
                 (total, comprador) =>
-                    total + comprador.zapatos.reduce((sum, zapato) => sum + (zapato.precio || 0), 0),
+                    total + comprador.zapatos.reduce((sum, zapato) => sum + (zapato.precioVenta || 0), 0),
                 0
             );
         },

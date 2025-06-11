@@ -106,7 +106,7 @@
                   :rules="[rules.required]"
                 />
               </v-col>
-              <v-col cols="12" md="6">
+              <!-- <v-col cols="12" md="6">
                 <v-text-field
                   v-model="comprador.cantidadZapatos"
                   label="Cantidad Zapatos"
@@ -114,7 +114,7 @@
                   required
                   :rules="[rules.required]"
                 />
-              </v-col>
+              </v-col> -->
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="comprador.abono"
@@ -141,27 +141,41 @@
             <v-divider class="my-3" />
             <v-card-title class="text-subtitle-1">
               Cantidad de zapatos del cliente
-              {{ pedidoStore.pedidoObj.compradores[index].cantidadZapatos }}
+              {{ pedidoStore.pedidoObj.compradores[index].zapatos.length }}
               <v-spacer></v-spacer>
-              <v-btn icon @click="pedidoStore.agregarZapato(index, route.path)">
+              <v-btn
+                color="green"
+                @click="(verModalCarrito = true), (indexCliente = index)"
+              >
                 <v-icon>mdi-plus</v-icon>
+                agregar zapato
               </v-btn>
             </v-card-title>
 
-            <div
-              v-if="pedidoStore.pedidoObj.compradores[index].cantidadZapatos"
-            >
+            <div>
               <v-container
-                v-for="(zapato, zIndex) in comprador.zapatos"
+                v-for="(zapato, zIndex) in pedidoStore.pedidoObj.compradores[
+                  index
+                ].zapatos"
                 :key="zIndex"
                 class="border rounded pa-2 mb-2"
               >
+              <div class="d-flex justify-end">
+                  <v-btn @click="pedidoStore.eliminarZapatoCliente(zIndex,index)" icon="mdi-delete" color="red">
+              
+                </v-btn>
+              </div>
+         
                 <v-row dense>
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="zapato.modelo"
-                      label="Modelo"
+                      v-model="zapato.genero"
+                      label="Genero"
                       required
+                      :value="zapato.genero"
+                      readonly="true"
+                      variant="outlined"
+
                     />
                   </v-col>
                   <v-col cols="12" md="2">
@@ -169,29 +183,52 @@
                       v-model="zapato.talla"
                       label="Talla EUR"
                       required
+                      :value="zapato.talla"
+                      readonly="true"
+                      variant="outlined"
+
                     />
                   </v-col>
-                  <v-col cols="12" md="3">
+                  <!-- <v-col cols="12" md="3">
                     <v-text-field
                       v-model="zapato.color"
                       label="Color"
                       required
+                      :value = zapato.talla
+
+                    />
+                  </v-col> -->
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      v-model="zapato.precioVenta"
+                      label="Precio Venta"
+                      type="number"
+                      :value="zapato.precioVenta"
+                      readonly="true"
+                      variant="outlined"
+
                     />
                   </v-col>
                   <v-col cols="12" md="2">
                     <v-text-field
-                      v-model="zapato.precio"
-                      label="Precio Venta"
-                      type="number"
+                      v-model="zapato.marca"
+                      label="Marca zapato"
+                      :value="zapato.marca"
+                      readonly="true"
+                      variant="outlined"
+
                     />
                   </v-col>
-                  <!-- <v-col cols="12" md="2">
+                  <v-col cols="12" md="3">
                     <v-text-field
-                      v-model="zapato.cantidad"
-                      label="Cantidad"
-                      type="number"
+                      v-model="zapato.referencia"
+                      label="Referencia"
+                      :value="zapato.referencia"
+                      readonly="true"
+                      variant="outlined"
+
                     />
-                  </v-col> -->
+                  </v-col>
                 </v-row>
               </v-container>
             </div>
@@ -199,13 +236,71 @@
         </v-card-text>
       </v-card>
 
+      <section>
+        <v-dialog v-model="verModalCarrito" max-width="500">
+          <v-card>
+            <v-card-title v-if="carrito.length > 0" class="text-h6">
+              Pedido actual:
+            </v-card-title>
+            <v-card-title v-else class="text-h6">
+              Aun no tienes nada en el carrito:
+            </v-card-title>
+
+            <v-card-text v-for="(item, index) in carrito" :key="index">
+              <v-card class="bg-white pa-2">
+                <v-row dense>
+                  <v-col cols="12">
+                    <strong>Género:</strong> {{ item.genero }}
+                  </v-col>
+                  <v-col cols="12">
+                    <strong>Marca:</strong> {{ item.marca }}
+                  </v-col>
+                  <v-col cols="12">
+                    <strong>Referencia:</strong>
+                    {{ item.referencia }}
+                  </v-col>
+
+                  <v-col cols="12">
+                    <strong>Talla:</strong> {{ item.talla }} EUR
+                  </v-col>
+
+                  <v-col cols="12">
+                    <strong>Precio:</strong> ${{
+                      item.precioVenta.toLocaleString()
+                    }}
+                  </v-col>
+                </v-row>
+                <div class="d-flex justify-end">
+                  <v-btn
+                    @click="eliminarProducto(item)"
+                    color="green d-flex justify-end"
+                    >asignar a este cliente</v-btn
+                  >
+                </div>
+              </v-card>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                text
+                color="grey-darken-1"
+                @click="verModalCarrito = false"
+              >
+                Cancelar
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </section>
+
       <div class="d-flex ga-3">
-        <v-btn type="submit" color="primary" :disabled="!isValid"
+        <v-btn type="submit" color="primary" v-if="pedidoStore.pedidoObj.compradores.length !=0" :disabled="!isValid"
           >Enviar Pedido</v-btn
         >
         <v-btn
           v-if="pedidoStore.pedidoObj.compradores.length != 0"
-          @click="pedidoStore.agregarComprador"
+          @click="pedidoStore.agregarComprador()"
         >
           <v-icon>mdi-plus</v-icon>
           Agregar otro cliente
@@ -220,13 +315,23 @@
 import { usePedidosStore } from "@/stores/Pedidos";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
-const pedidoStore = usePedidosStore();
 import { useUserLoginStore } from "@/stores/userLogin";
 import { useRoute } from "vue-router";
-const { getMe } = useUserLoginStore();
+import { useInventarioStore } from "@/stores/Inventario";
+const userLoginStore = useUserLoginStore();
+
 // watch(mensaje, (nuevoValor) => {
 //   console.log(nuevoValor);
 // });
+
+const pedidoStore = usePedidosStore();
+const indexCliente = ref();
+const inventarioStore = useInventarioStore();
+const verModalCarrito = ref(false);
+const { carrito } = storeToRefs(inventarioStore);
+
+
+
 
 const route = useRoute();
 const rules = {
@@ -238,17 +343,27 @@ const formRef = ref();
 const nombreUser = ref("");
 const idUser = ref("");
 
+const eliminarProducto = (item) => {
+  // console.log("obj: ",item)
+  // console.log("indice del cliente:",indexCliente.value)
+  pedidoStore.agregarZapato(indexCliente.value, route.path, item);
+
+  // carrito.value.splice(index, 1);
+};
+
 onMounted(async () => {
   try {
-    const response = await getMe();
-    if (dataUser.status !== 200) router.push("/");
+    const response = await userLoginStore.getMe();
+    if (response.status !== 200) route.push("/");
 
+    console.log(response.data)
     const nombre = response.data.first_name;
     const apellido = response.data.last_name;
     nombreUser.value = nombre + apellido;
     idUser.value = response.data.id;
   } catch (error) {
-    if (error.response.status !== 200) route.push("/");
+    console.log(error.response)
+    // if (error.response.status !== 200) route.push("/");
   }
 
   //   if (response.status !== 200) router.push("/");
@@ -262,7 +377,7 @@ const enviarFormulario = async () => {
     await pedidoStore.crearPedido(nombreUser.value, idUser.value, route.path);
     return;
   } catch (error) {
-    console.error("Error al enviar pedido:", error);
+    console.error("Error al enviar pedido:", error.response.data);
     alert("Hubo un error al enviar el pedido");
   }
 };

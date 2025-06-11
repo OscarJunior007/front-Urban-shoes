@@ -57,7 +57,7 @@
             prepend-icon="mdi-arrow-up-bold-box"
             title="Realizar pedido"
             value="pedidos"
-            @click="redireccionar('/RealizarPedido')"
+            @click="redireccionar('/inventario')"
             class="btn-navigation"
           ></v-list-item>
           <v-list-item
