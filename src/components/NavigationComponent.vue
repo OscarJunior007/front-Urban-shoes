@@ -68,6 +68,15 @@
             @click="redireccionar('/PedidoProveedor')"
             class="btn-navigation"
           ></v-list-item>
+
+          <v-list-item
+            v-if="objUser?.rol === 'ADMIN'"
+            prepend-icon="mdi-archive-outline"
+            title="Ver pedidos vendedor"
+            value="ViewPedidos"
+            @click="redireccionar('/PedidosVendedores')"
+            class="btn-navigation"
+          ></v-list-item>
         </v-list>
 
         <template v-slot:append>

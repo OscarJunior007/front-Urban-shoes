@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { defineStore } from 'pinia';
-
+import { BASE_URL } from '@/router/baseUrl';
 interface Iinventario {
 
     precioProveedor: number
@@ -55,7 +55,7 @@ export const useInventarioStore = defineStore('Inventario', {
     actions: {
         async guarInventario() {
             try {
-                const response = await axios.post("http://localhost:8000/api/zapatos/inventario", this.inventarioObj)
+                const response = await axios.post(`${BASE_URL}api/zapatos/inventario`, this.inventarioObj)
 
                 console.log("data del response: ", response.data)
                 this.mensaje = response.data?.message ?? "Zapato ingresado exitosamente"
@@ -70,7 +70,7 @@ export const useInventarioStore = defineStore('Inventario', {
 
         async getInventario() {
             try {
-                const response = await axios.get("http://localhost:8000/api/zapatos")
+                const response = await axios.get(`${BASE_URL}api/zapatos`)
                 console.log(response.data.inventario)
                 this.inventario = response.data.inventario
                 this.mensaje = response.data?.message ?? "Inventario extraido"

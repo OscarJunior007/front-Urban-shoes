@@ -49,7 +49,7 @@
           <v-card-title>
             Clientes
             <v-spacer></v-spacer>
-            <v-btn icon @click="pedidoStore.agregarComprador">
+            <v-btn icon @click="verClientes = true">
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </v-card-title>
@@ -115,14 +115,7 @@
                   :rules="[rules.required]"
                 />
               </v-col> -->
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="comprador.abono"
-                  label="Abono"
-                  type="number"
-                  :rules="[rules.required]"
-                />
-              </v-col>
+        
               <!-- <v-col cols="12" md="6">
                 <v-switch v-model="comprador.pago" label="Pago realizado" />
               </v-col> -->
@@ -141,7 +134,7 @@
             <v-divider class="my-3" />
             <v-card-title class="text-subtitle-1">
               Cantidad de zapatos del cliente
-              {{ pedidoStore.pedidoObj.compradores[index].zapatos.length }}
+              {{ pedidoStore.pedidoObj.compradores[index].productos.length }}
               <v-spacer></v-spacer>
               <v-btn
                 color="green"
@@ -156,7 +149,7 @@
               <v-container
                 v-for="(zapato, zIndex) in pedidoStore.pedidoObj.compradores[
                   index
-                ].zapatos"
+                ].productos"
                 :key="zIndex"
                 class="border rounded pa-2 mb-2"
               >
@@ -294,13 +287,55 @@
         </v-dialog>
       </section>
 
+       <section>
+        <v-dialog v-model="verClientes" max-width="500">
+          <v-card>
+            <v-card-title v-if="listClientes.length > 0" class="text-h6">
+              Clientes disponibles:
+            </v-card-title>
+            <v-card-title v-else class="text-h6">
+              Aun no tienes clientes, registralos para poder realizar perdidos
+            </v-card-title>
+
+            <v-card-text v-for="(item, index) in listClientes" :key="index">
+              <v-card class="bg-white pa-2">
+                <v-row dense>
+                  <v-col cols="12">
+                    <strong>Nombre:</strong> {{ item.nombre }}
+                  </v-col>
+                
+                </v-row>
+                <div class="d-flex justify-end">
+                  <v-btn
+                    @click="agregarComprador(item)"
+                    color="green d-flex justify-end"
+                    >Agregar este cliente</v-btn
+                  >
+                </div>
+              </v-card>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                text
+                color="grey-darken-1"
+                @click="verClientes = false"
+              >
+                Cancelar
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </section>
+
       <div class="d-flex ga-3">
         <v-btn type="submit" color="primary" v-if="pedidoStore.pedidoObj.compradores.length !=0" :disabled="!isValid"
           >Enviar Pedido</v-btn
         >
         <v-btn
           v-if="pedidoStore.pedidoObj.compradores.length != 0"
-          @click="pedidoStore.agregarComprador()"
+          @click="verClientes = true"
         >
           <v-icon>mdi-plus</v-icon>
           Agregar otro cliente
@@ -320,18 +355,21 @@ import { useRoute } from "vue-router";
 import { useInventarioStore } from "@/stores/Inventario";
 const userLoginStore = useUserLoginStore();
 
+
+const {listClientes} = storeToRefs(userLoginStore);
 // watch(mensaje, (nuevoValor) => {
 //   console.log(nuevoValor);
 // });
 
 const pedidoStore = usePedidosStore();
+const {agregarComprador} = pedidoStore;
 const indexCliente = ref();
 const inventarioStore = useInventarioStore();
 const verModalCarrito = ref(false);
 const { carrito } = storeToRefs(inventarioStore);
 
 
-
+const  verClientes = ref(false);
 
 const route = useRoute();
 const rules = {
@@ -374,8 +412,9 @@ const enviarFormulario = async () => {
 
   if (!valid) return;
   try {
-    await pedidoStore.crearPedido(nombreUser.value, idUser.value, route.path);
-    return;
+   let pedido = await pedidoStore.crearPedido(nombreUser.value, idUser.value, route.path);
+    console.log(pedido)
+    if (pedido) inventarioStore.carrito = []
   } catch (error) {
     console.error("Error al enviar pedido:", error.response.data);
     alert("Hubo un error al enviar el pedido");

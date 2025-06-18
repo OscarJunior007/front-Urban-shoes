@@ -12,6 +12,25 @@
       >
     </v-row>
 
+    <div class="d-flex" >
+
+    <v-text-field
+    col="12"
+    style="width: 100%; max-width: 400px;"
+    class="mr-4"
+    v-model="filtro"
+    prepend-icon="mdi-magnify"
+    label="Buscar por nombre"
+    variant="outlined"
+    >
+
+    </v-text-field>
+
+    <v-select v-model="selectedRole" label="Filtrar por rol" style="width: 100%; max-width: 400px;" :items="['Admin','Vendedor']" clearable ></v-select>
+    
+    </div>
+    
+
     <!-- <div
       class="d-none d-md-flex justify-end align-center mr-4"
       style="height: 100%; width: 30%; gap: 10px"
@@ -46,7 +65,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in userList" :key="user?.id">
+          <tr v-for="user in dataFiltrada" :key="user?.id">
             <td class="d-flex align-center py-4">
               <v-avatar size="40" color="blue" class="me-4">
                 <span class="text-white text-subtitle1">{{
@@ -221,6 +240,7 @@ import { useErrorSuccessStore } from "@/stores/ErrorSucces";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
+import {computed} from "vue";
 
 interface iDataUser {
   id: string;
@@ -230,6 +250,21 @@ interface iDataUser {
   rol: string;
   estado: string;
 }
+const loginStore = useUserLoginStore();
+
+const { objUserRegister, userList, objUser } = storeToRefs(loginStore);
+
+
+const filtro = ref("");
+const selectedRole = ref('')
+
+const dataFiltrada = computed(() =>{
+  return userList.value?.filter((user: iDataUser) =>
+    user.first_name.toLowerCase().includes(filtro.value.toLowerCase()) && (!selectedRole.value || user.rol.toLowerCase() === selectedRole.value.toLowerCase())
+  );
+})
+
+
 
 const router = useRouter();
 const skeletonActive = ref(false);
@@ -242,14 +277,12 @@ const formRef = ref();
 const errorSuccessStore = useErrorSuccessStore();
 const userToedit = ref();
 
-const loginStore = useUserLoginStore();
 
 const setUserEdit = (user: iDataUser) => {
   console.log("datos del usuario a editar: ", user);
   userToedit.value = { ...user };
 };
 
-const { objUserRegister, userList, objUser } = storeToRefs(loginStore);
 
 const rules = {
   required: (v: string) => !!v || "Campo obligatorio",

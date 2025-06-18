@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import axios, { type AxiosResponse } from 'axios'
 import { useRouter } from 'vue-router'
+import { BASE_URL } from '@/router/baseUrl'
 interface IUserLogin {
     username: string
     password: string
@@ -32,17 +33,31 @@ interface IState {
     router?: typeof useRouter
     objUserRegister: IUserRegister
     userList:[iDataUser] | undefined
+    objClienteRegister: IClienteRegister
+    listClientes?: ICliente[]
+    
  
 }
 
+interface IClienteRegister{
+    id_vendedor: string
+    nombre:string
+    telefonoPersona:string
+    direccionPersona:string
+    documentoPersona:string
+}
 
-
+interface ICliente extends IClienteRegister {
+    id: string
+}
 export const useUserLoginStore = defineStore('userLogin', {
     state: (): IState => ({
         objLogin: { username: '', password: '' },
         accessToken: undefined,
         loading: false,
         objUserRegister: { email: '', password: '', rol: 'VENDEDOR', first_name: '', last_name: '', estado: 'ACTIVO' },
+        objClienteRegister: { id_vendedor: '', nombre: '', telefonoPersona: '', direccionPersona: '', documentoPersona: '' },
+        listClientes: undefined,
         objUser: {
             id: '',
             email: '',
@@ -61,7 +76,7 @@ export const useUserLoginStore = defineStore('userLogin', {
                 payload.append('username', this.objLogin.username)
                 payload.append('password', this.objLogin.password)
 
-                const response = await axios.post(`http://localhost:8000/api/users/login`, payload, {
+                const response = await axios.post(`${BASE_URL}api/users/login`, payload, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
@@ -78,7 +93,7 @@ export const useUserLoginStore = defineStore('userLogin', {
         },
         async register(): Promise<AxiosResponse> {
             try {
-                const response = await axios.post(`http://localhost:8000/api/users/signup`, this.objUserRegister, {
+                const response = await axios.post(`${BASE_URL}api/users/signup`, this.objUserRegister, {
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${this.accessToken}` 
@@ -92,7 +107,7 @@ export const useUserLoginStore = defineStore('userLogin', {
         },
         async getMe(): Promise<AxiosResponse> {
             try {
-                const response = await axios.get(`http://localhost:8000/api/me`, {
+                const response = await axios.get(`${BASE_URL}api/me`, {
                     headers: {
                         Authorization: `Bearer ${this.accessToken}`
                     }
@@ -116,7 +131,7 @@ export const useUserLoginStore = defineStore('userLogin', {
         },
         async getAllUsers(): Promise<AxiosResponse> {   
             try {
-                const response = await axios.get(`http://localhost:8000/api/users`, {
+                const response = await axios.get(`${BASE_URL}api/users`, {
                     headers: {
                         Authorization: `Bearer ${this.accessToken}`
                     }
@@ -130,7 +145,7 @@ export const useUserLoginStore = defineStore('userLogin', {
         },
         async editUser(user:iDataUser){
         try{
-            const response =  await axios.put(`http://localhost:8000/api/users/${user.id}`, user, {
+            const response =  await axios.put(`${BASE_URL}api/users/${user.id}`, user, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${this.accessToken}`
@@ -146,8 +161,40 @@ export const useUserLoginStore = defineStore('userLogin', {
         }catch (error) {
             throw error
         }
-    }
+    },
 
+    async createCliente(id: string): Promise<AxiosResponse> {
+        try {
+            if(id === undefined || id === null || id === '') {
+                throw new Error('El ID del vendedor no puede estar vacío')
+            }
+
+            this.objClienteRegister.id_vendedor = id
+            const response = await axios.post(`${BASE_URL}api/users/cliente`, this.objClienteRegister)
+            console.log('Cliente creado:', response.data)
+            this.objClienteRegister = { id_vendedor: '', nombre: '', telefonoPersona: '', direccionPersona: '', documentoPersona: '' }
+            return response
+        } catch (error) {
+            throw error
+        }   
+    }, 
+    
+    async clientesByVendedor(id: string) {
+        try {
+            if(id === undefined || id === null || id === '') {
+                throw new Error('El ID del vendedor no puede estar vacío')
+            }
+
+         
+            const response = await axios.get(`${BASE_URL}api/users/clientes/vendedor/${id}`)
+   
+            this.listClientes = response.data
+            console.log('Lista de clientes:', this.listClientes)
+         
+        } catch (error) {
+            throw error
+        }   
+    }, 
     },
     
     getters: {

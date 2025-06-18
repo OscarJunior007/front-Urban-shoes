@@ -2,10 +2,27 @@
   <MenuComponent></MenuComponent>
 
   <v-container>
-    <h1>
-        Hola
-    </h1>
-    <section class="py-8">
+    <section class="d-flex justify-space-between align-center">
+      <v-col cols="auto">
+        <h5 class="text-h5 font-weight-bold ml-3 mb-0">
+          Productos disponibles
+        </h5>
+      </v-col>
+      <div>
+        <v-btn @click="verModalCarrito = true">
+          <v-badge
+            v-bind:dot="carrito.length == 0"
+            floating
+            color="red"
+            :content="carrito.length"
+          >
+            <v-icon size="x-large"> mdi-cart</v-icon>
+          </v-badge>
+        </v-btn>
+      </div>
+    </section>
+
+    <section class="py-8" style="width: 100%">
       <div class="container mx-auto px-4">
         <div class="flex flex-col lg:flex-row gap-8">
           <!-- <aside class="lg:w-1/4">
@@ -76,37 +93,35 @@
                 </aside> -->
 
           <!-- Grid principal de productos -->
-          <main class="lg:w-3/4">
+          <main class="lg:w-3/4" style="width: 100%">
             <!-- Barra de ordenación -->
+            <h1 class="ml-4 text-h5 md:ml-8 md:text-h4">Filtros</h1>
             <div
-              class="bg-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center"
+              class="bg-white p-4 rounded-lg shadow-md mb-6 flex flex-col md:flex-row gap-4 md:justify-between md:items-center w-full"
             >
-              <span class="text-gray-700">Mostrando 1-12 de 41 productos</span>
-              <select class="border border-gray-300 px-3 py-2 rounded">
-                <option>Ordenar por popularidad</option>
-                <option>Precio: menor a mayor</option>
-                <option>Precio: mayor a menor</option>
-                <option>Más recientes</option>
-              </select>
-              <div>
-                <v-btn @click="verModalCarrito = true">
-                  <v-badge
-                    v-bind:dot="carrito.length == 0"
-                    floating
-                    color="red"
-                    :content="carrito.length"
-                  >
-                    <v-icon size="x-large"> mdi-cart</v-icon>
-                  </v-badge>
-                </v-btn>
-              </div>
+              <v-text-field
+                variant="outlined"
+                prepend-icon="mdi-magnify"
+                label="Buscar productos"
+                v-model="nombreZapato"
+                class="w-full md:w-1/2"
+              ></v-text-field>
+
+              <v-select
+                :items="['Nike', 'Adidas', 'Puma', 'Reebok']"
+                label="Marca"
+                variant="outlined"
+                v-model="filtroMarca"
+                clearable
+                class="w-full md:w-1/2"
+              ></v-select>
             </div>
 
             <!-- Grid de productos -->
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <!-- Producto 1 -->
               <div
-                v-for="(item, index) in inventarioStore.inventario"
+                v-for="(item, index) in dataFiltrada"
                 :key="index"
                 class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition"
               >
@@ -115,9 +130,7 @@
                   class="h-64 bg-gray-200 flex items-center justify-center relative"
                 >
                   <!-- <i class="fas fa-shoe-prints text-6xl text-gray-400"></i> -->
-                   <v-img cover :src="item.imagenes[0]">
-                    
-                   </v-img>
+                  <v-img cover :src="item.imagenes[0]"> </v-img>
                   <!-- <span class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs rounded">-20%</span> por si en algun momento se le pone descuento -->
                 </div>
 
@@ -207,9 +220,8 @@
                   <strong>Talla:</strong> {{ item.talla }} EUR
                 </v-col>
 
-                
                 <v-col cols="12">
-                  <strong>Color:</strong> {{ item.color }} 
+                  <strong>Color:</strong> {{ item.color }}
                 </v-col>
 
                 <v-col cols="12">
@@ -311,6 +323,8 @@ import { useInventarioStore } from "@/stores/Inventario";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
+import { computed } from "vue";
+import { watch } from "vue";
 const verModal = ref(false);
 const inventarioStore = useInventarioStore();
 const tallaSeleccionada = ref("");
@@ -320,6 +334,31 @@ const productoSeleccionado = ref<any>(null);
 const verModalCarrito = ref(false);
 const { carrito } = storeToRefs(inventarioStore);
 const router = useRouter();
+
+const nombreZapato = ref("");
+const filtroMarca = ref("");
+
+// watch(
+//   () => filtroMarca.value,
+//   (newValue) => {
+//     console.log("Carrito actualizado:", newValue);
+//   },
+//   { deep: true }
+// );
+
+const dataFiltrada = computed(() => {
+  // if (!nombreZapato.value) {
+  //   return inventarioStore.inventario;
+  // }
+  return inventarioStore.inventario?.filter(
+    (item) =>
+      item.referencia
+        .toLowerCase()
+        .includes(nombreZapato.value.toLowerCase()) &&
+      (!filtroMarca.value ||
+        item.marca.toLowerCase() === filtroMarca.value.toLowerCase())
+  );
+});
 
 const activarModal = (obj: any) => {
   console.log("se activa metodo");
@@ -343,10 +382,9 @@ const agregarCarrito = () => {
     return;
   }
 
-  if(!colorSeleccionado.value){
-      alert("Por favor selecciona un color");
+  if (!colorSeleccionado.value) {
+    alert("Por favor selecciona un color");
     return;
-
   }
   const { genero, marca, referencia, precioVenta } = productoSeleccionado.value;
   const productoConTalla = {
@@ -355,7 +393,7 @@ const agregarCarrito = () => {
     referencia,
     precioVenta,
     talla: tallaSeleccionada.value,
-    color: colorSeleccionado.value
+    color: colorSeleccionado.value,
   };
   if (Array.isArray(inventarioStore.carrito)) {
     inventarioStore.carrito.push(productoConTalla);

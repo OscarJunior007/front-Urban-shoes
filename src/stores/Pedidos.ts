@@ -2,14 +2,14 @@ import { defineStore } from 'pinia'
 import axios, { type AxiosResponse } from 'axios'
 import { useRoute } from 'vue-router';
 import { standardEasing } from 'vuetify/lib/util/easing.mjs';
-
+import { BASE_URL } from '@/router/baseUrl';
 interface Izapato {
     genero: string;
     marca: string;
     precioVenta: number;
     referencia: string
     talla: string
-    // cantidad: number;
+    color: number;
 }
 
 interface IzapatoProv {
@@ -18,17 +18,23 @@ interface IzapatoProv {
     sexo: string
     precioUnitario: number
 }
-
+interface histoCompras {
+    cantidadProductosCliente: number
+    productos: Izapato[]
+    fecha: string
+    id_vendedor: string
+    abono: number
+    pago: number
+    subtotal: number
+    totalPagar: number
+}
 interface Icomprador {
+    id:string
     nombre: string;
     telefonoPersona: string;
     direccionPersona: string;
     documentoPersona: string;
-    cantidadZapatos: number;
-    abono: number;
-    pago: boolean;
-    total: number;
-    zapatos: Izapato[];
+    productos?: Izapato[]
 }
 
 interface Ipedido {
@@ -37,8 +43,14 @@ interface Ipedido {
     nombreVendedor: string
     notas: string;
     total: number;
-    cantidadZapatos: number;
+    cantidadProductos: number;
     compradores: Icomprador[];
+}
+
+interface IcardPedido extends Ipedido {
+    id: string;
+    estado: string;
+
 }
 interface IpedidoProv {
     personRealizoPedido: string
@@ -66,20 +78,30 @@ interface IState {
     idVendedor: string;
     nombreVendedor: string
     pedidoProvObj: IpedidoProv
-
+    allPedidos: IcardPedido[] 
 
 }
-
+interface IClienteRegister{
+    id_vendedor: string
+    nombre:string
+    telefonoPersona:string
+    direccionPersona:string
+    documentoPersona:string
+}
+interface ICliente extends IClienteRegister {
+    id: string
+}
 export const usePedidosStore = defineStore('Pedidos', {
     state: (): IState => ({
         pedidoObj: {
             vendedorId: "",
             fechaPedido: new Date().toISOString(),
             notas: "",
-            cantidadZapatos: 0,
+            cantidadProductos: 0,
             nombreVendedor: "",
             total: 0,
             compradores: [],
+
         },
         pedidoProvObj: {
             personRealizoPedido: "",
@@ -97,76 +119,60 @@ export const usePedidosStore = defineStore('Pedidos', {
         },
         mensaje: "",
         idVendedor: "",
-        nombreVendedor: ""
+        nombreVendedor: "",
+        allPedidos: []
     }),
     actions: {
-        async crearPedido(nombre: string, id: string, path: string) {
-
-
+        async crearPedido(nombreVendedor: string, idVendedor: string, path: string): Promise<boolean> {
             if (path == "/RealizarPedido") {
-               
-                this.pedidoObj.vendedorId = id;
-                this.pedidoObj.nombreVendedor = nombre;
-                this.pedidoObj.cantidadZapatos = parseFloat(String(this.getCantidadTotalZapatos()));
-                console.log("cantidad de zapatos: ", this.pedidoObj.cantidadZapatos)
-                this.pedidoObj.total = parseFloat(String(this.getTotalPedido()));
+                this.pedidoObj.vendedorId = idVendedor;
+                this.pedidoObj.nombreVendedor = nombreVendedor;
+                this.pedidoObj.cantidadProductos = this.getCantidadTotalProductosVenta();
+                this.pedidoObj.total = this.getTotalPedido();
+
                 this.pedidoObj.compradores.forEach(comprador => {
-                    comprador.cantidadZapatos = comprador.zapatos.length
-                    comprador.cantidadZapatos = parseInt(String(comprador.cantidadZapatos)) || 0;
-                    comprador.abono = parseFloat(String(comprador.abono));
-                    comprador.zapatos.forEach(zapato => {
-                        zapato.precioVenta = parseFloat(String(zapato.precioVenta));
-                    });
-                    const totalZapatos = comprador.zapatos.reduce((sum, zapato) => sum + (zapato.precioVenta || 0), 0);
-                    comprador.total = parseFloat((totalZapatos - (comprador.abono || 0)).toFixed(2));
+                    if (Array.isArray(comprador.productos) && comprador.productos.length > 0) {
+                        comprador.productos.forEach(zapato => {
+                            zapato.precioVenta = parseFloat(String(zapato.precioVenta));
+                        });
+                    }
                 });
 
                 try {
-                    const response = await axios.post("http://localhost:8000/pedidos/vendedor", this.pedidoObj)
-
+                    const response = await axios.post(`${BASE_URL}pedidos/vendedor`, this.pedidoObj)
                     this.mensaje = "Pedido realizado correctamente";
                     console.log(response.data)
-                    return response.data
-
+                    if (response.data.status === 201 || response.status === 201) {
+                        return true;
+                    }
+                    return false;
                 } catch (error: any) {
-                    console.log("cantidad de zapatos: ", this.pedidoObj.cantidadZapatos)
-                    console.log(error.response.status)
+                    console.log("cantidad de productos: ", this.pedidoObj.cantidadProductos)
+                    if (error.response && error.response.status) {
+                        console.log(error.response.status)
+                    }
                     throw error
-
                 }
-
             }
-
-            console.log(nombre, id)
-            this.pedidoProvObj.personRealizoPedido = nombre
-            this.pedidoProvObj.proveedorId = id
-
-
-            try {
-                const response = await axios.post("http://localhost:8000/pedidos/proveedor", this.pedidoProvObj)
-                this.mensaje = "Pedido realizado correctamente";
-                console.log(response.data)
-                return response.data
-
-            } catch (error: any) {
-                throw error
-            }
-
-
-
+            return false;
         },
-        agregarComprador() {
+        agregarComprador(dataCliente: ICliente) {
+            this.pedidoObj.compradores.forEach((cliente) =>{
+                if(cliente.documentoPersona === dataCliente.documentoPersona) {
+                    this.mensaje = "El cliente ya existe en el pedido";
+                    return;
+                }
+                
+          })
             this.pedidoObj.compradores.push({
-                nombre: "",
-                telefonoPersona: "",
-                direccionPersona: "",
-                documentoPersona: "",
-                cantidadZapatos: 0,
-                abono: 0,
-                pago: false,
-                total: 0,
-                zapatos: [],
-            })
+                id: dataCliente.id,
+                nombre: dataCliente.nombre,
+                telefonoPersona: dataCliente.telefonoPersona,
+                direccionPersona: dataCliente.direccionPersona,
+                documentoPersona: dataCliente.documentoPersona,
+                productos: []
+            });
+            this.mensaje = "Cliente agregado al pedido";
         },
 
         agregarZapato(index: number | null, path: string, obj: Izapato) {
@@ -176,17 +182,10 @@ export const usePedidosStore = defineStore('Pedidos', {
                     this.mensaje = "No se puede agregar zapato: index no definido";
                     return;
                 }
-                // let cantidad = this.pedidoObj.compradores[index].cantidadZapatos;
-                let nombreCliente = this.pedidoObj.compradores[index].nombre;
-                // if (cantidad === 0) {
-                //     this.mensaje = `te faltan la cantidad de zapatos para el cliente ${nombreCliente}`;
-                //     console.log(this.mensaje);
-                //     return;
-                // }
-                // this.pedidoObj.compradores[index].zapatos = [];
-
-                this.pedidoObj.compradores[index].zapatos.push(obj);
-                console.log("array de zapatos, cliente: ", this.pedidoObj.compradores[index].zapatos)
+                if (!Array.isArray(this.pedidoObj.compradores[index].productos)) {
+                    this.pedidoObj.compradores[index].productos = [];
+                }
+                this.pedidoObj.compradores[index].productos.push(obj);
                 return;
             }
 
@@ -210,28 +209,48 @@ export const usePedidosStore = defineStore('Pedidos', {
                 throw error;
             }
         },
-        zapatosClientes(index: number): any[] {
-            return Array.isArray(this.pedidoObj.compradores?.[index]?.zapatos)
-                ? this.pedidoObj.compradores[index].zapatos
-                : [];
+        // zapatosClientes(index: number): any[] {
+        //     return Array.isArray(this.pedidoObj.compradores?.[index]?.zapatos)
+        //         ? this.pedidoObj.compradores[index].zapatos
+        //         : [];
+        // },
+        async getAllPedidos() {
+            try {
+                const response = await axios.get(`${BASE_URL}api/pedidos`)
+                console.log(response.data)
+
+                
+                this.allPedidos = [...response.data.inventario];
+                    
+                console.log("array pedidos:",this.allPedidos)
+                return;
+                
+            } catch (error: any) {
+                console.error("Error al obtener los pedidos:", error);
+                this.mensaje = error.response?.data?.message || "Error al obtener los pedidos";
+                throw error;
+            }
         },
         eliminarCliente(index: number) {
             this.pedidoObj.compradores.splice(index, 1)
         },
         eliminarZapatoCliente(index: number, indexCliente: number) {
-            console.log("se ejecuto la funcion..")
-            this.pedidoObj.compradores[indexCliente].zapatos.splice(index, 1)
+            if (Array.isArray(this.pedidoObj.compradores[indexCliente].productos)) {
+                this.pedidoObj.compradores[indexCliente].productos.splice(index, 1)
+            }
         },
-        getCantidadTotalZapatos(): number {
+        getCantidadTotalProductosVenta(): number {
             return this.pedidoObj.compradores.reduce(
-                (total, comprador) => total + comprador.zapatos.length,
+                (total, comprador) => total + (Array.isArray(comprador.productos) ? comprador.productos.length : 0),
                 0
             );
         },
         getTotalPedido(): number {
             return this.pedidoObj.compradores.reduce(
                 (total, comprador) =>
-                    total + comprador.zapatos.reduce((sum, zapato) => sum + (zapato.precioVenta || 0), 0),
+                    total + (Array.isArray(comprador.productos)
+                        ? comprador.productos.reduce((sum, producto) => sum + (producto.precioVenta || 0), 0)
+                        : 0),
                 0
             );
         },
