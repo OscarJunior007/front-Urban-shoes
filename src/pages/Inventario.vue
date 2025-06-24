@@ -368,7 +368,7 @@ const activarModal = (obj: any) => {
   verModal.value = true;
 };
 
-const eliminarProducto = (index) => {
+const eliminarProducto = (index:number) => {
   carrito.value.splice(index, 1);
 };
 
