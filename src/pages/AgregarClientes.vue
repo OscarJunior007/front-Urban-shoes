@@ -135,7 +135,7 @@
 import { ref } from "vue";
 import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
-import { useUserLoginStore } from "@/stores/userLogin";
+import { useUserLoginStore } from "@/stores/Userlogin";
 import { useErrorSuccessStore } from "@/stores/ErrorSucces";
 const userLoginStore = useUserLoginStore();
 const { objClienteRegister, createCliente,getMe,clientesByVendedor } = userLoginStore;

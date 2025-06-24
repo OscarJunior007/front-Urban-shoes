@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
 import {onMounted} from "vue";
-import {useUserLoginStore} from "@/stores/userLogin"; 
+import { useUserLoginStore } from "@/stores/Userlogin";
 import { useRouter } from 'vue-router'
 import { storeToRefs } from "pinia";
 const display = useDisplay();

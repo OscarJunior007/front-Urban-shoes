@@ -125,7 +125,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useUserLoginStore } from "@/stores/userLogin";
+import { useUserLoginStore } from "@/stores/Userlogin";
 import { useRouter } from 'vue-router';
 const loginStore = useUserLoginStore();
 const router = useRouter(); 

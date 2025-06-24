@@ -165,7 +165,7 @@
 import { ref } from "vue";
 import { usePedidosStore } from "@/stores/Pedidos";
 import { useRoute } from "vue-router";
-import { useUserLoginStore } from "@/stores/userLogin";
+import { useUserLoginStore } from "@/stores/Userlogin";
 const valid = ref(false);
 const route = useRoute();
 const pedidoStore = usePedidosStore();

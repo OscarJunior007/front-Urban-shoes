@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserLoginStore } from '@/stores/userLogin'
+import { useUserLoginStore } from "@/stores/Userlogin";
 import { useErrorSuccessStore } from '@/stores/ErrorSucces'
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'

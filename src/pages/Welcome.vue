@@ -22,7 +22,7 @@
 import MenuComponent from "@/components/MenuComponent.vue";
 import {onMounted} from "vue";
 import { useRouter } from 'vue-router'
-import { useUserLoginStore } from "@/stores/userLogin";
+import { useUserLoginStore } from "@/stores/Userlogin";
 const loginStore = useUserLoginStore(); 
 const router = useRouter();
 
