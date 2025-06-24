@@ -25,6 +25,7 @@ declare module 'vue-router/auto-routes' {
     '/Inventario': RouteRecordInfo<'/Inventario', '/Inventario', Record<never, never>, Record<never, never>>,
     '/PedidoProveedor': RouteRecordInfo<'/PedidoProveedor', '/PedidoProveedor', Record<never, never>, Record<never, never>>,
     '/PedidosVendedores': RouteRecordInfo<'/PedidosVendedores', '/PedidosVendedores', Record<never, never>, Record<never, never>>,
+    '/PedidosVendedores/[id]': RouteRecordInfo<'/PedidosVendedores/[id]', '/PedidosVendedores/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/Proveedores': RouteRecordInfo<'/Proveedores', '/Proveedores', Record<never, never>, Record<never, never>>,
     '/RealizarPedido': RouteRecordInfo<'/RealizarPedido', '/RealizarPedido', Record<never, never>, Record<never, never>>,
     '/Usuarios': RouteRecordInfo<'/Usuarios', '/Usuarios', Record<never, never>, Record<never, never>>,

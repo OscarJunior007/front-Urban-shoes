@@ -12,129 +12,102 @@
           Gestionar pedidos por vendedor
         </h5>
       </v-col>
-      <v-col cols="auto">
-        <v-btn color="primary" class="text-capitalize mr-3">
-          Agregar Nuevo Proveedor
-        </v-btn>
-      </v-col>
     </v-row>
 
     <!-- Header y botón en mobile -->
     <v-row class="d-flex d-md-none mb-4" align="center" justify="space-between">
       <v-col cols="12" class="d-flex justify-space-between align-center">
         <h5 class="text-h6 font-weight-bold mb-0">Gestión de Proveedores</h5>
-        <v-btn
-          color="primary"
-          class="text-capitalize ml-2"
-          style="height: 40px"
-        >
-          Agregar
-        </v-btn>
       </v-col>
     </v-row>
 
-    <!-- Cards responsivas -->
-    <v-row class="pa-3" dense>
-      <v-col cols="12" sm="6" md="4" class="d-flex">
-        <v-card
-          class="rounded-lg bg-white pa-4 mb-4"
-          :style="{
-            width: $vuetify.display.smAndDown ? '100%' : '300px',
-            minWidth: $vuetify.display.smAndDown ? '90vw' : 'unset',
-          }"
-          v-for="(pedido, index) in allPedidos"
-          :key="index"
-        >
-          <!-- ...contenido de la card... -->
+    <v-row class="pa-2" dense>
+      <v-col
+        v-for="(pedido, index) in allPedidos"
+        :key="index"
+        cols="12"
+        sm="6"
+        md="4"
+        class="d-flex"
+      >
+        <v-card class="rounded-lg bg-white pa-4 mb-4" style="width: 100%">
           <v-card-text class="text-subtitle1">
             <div class="d-flex flex-column">
               <v-title class="text-h6 font-weight-bold mt-0">
                 <div class="d-flex align-center">
-                  <span> {{ pedido.nombreVendedor }} </span>
+                  <span>{{ pedido.nombreVendedor }}</span>
                   <v-chip
                     class="ml-2 text-center"
                     color="green"
                     variant="outlined"
                     size="small"
-                    >{{ pedido.estado }}</v-chip
                   >
+                    {{ pedido.estado }}
+                  </v-chip>
                 </div>
               </v-title>
-              <div></div>
+
               <strong class="mb-2 mt-3">
                 <span class="text-grey-darken-3">
                   Nombre:
-                  <span class="text-grey-darken-1">
-                    {{ pedido.nombreVendedor }}
-                  </span></span
-                >
+                  <span class="text-grey-darken-1">{{
+                    pedido.nombreVendedor
+                  }}</span>
+                </span>
               </strong>
+
               <strong class="mb-2">
                 <span class="text-grey-darken-3">
                   Fecha del pedido:
                   <span class="text-grey-darken-1">
                     {{ pedido.fechaPedido.split("T")[0] }}
-                  </span></span
-                >
+                  </span>
+                </span>
               </strong>
+
               <strong class="mb-2">
                 <span class="text-grey-darken-3">
                   Cantidad de productos:
-                  <span class="text-grey-darken-1">
-                    {{ pedido.cantidadProductos }}
-                  </span></span
-                >
+                  <span class="text-grey-darken-1">{{
+                    pedido.cantidadProductos
+                  }}</span>
+                </span>
               </strong>
+
               <strong class="mb-2">
                 <span class="text-grey-darken-3">
                   Cantidad de clientes:
-                  <span class="text-grey-darken-1">
-                    {{ pedido.compradores.length }}
-                  </span></span
-                >
+                  <span class="text-grey-darken-1">{{
+                    pedido.compradores.length
+                  }}</span>
+                </span>
               </strong>
+
               <strong class="mb-2">
                 <span class="text-grey-darken-3">
                   Total del pedido:
-                  <span class="text-grey-darken-1">
-                    ${{ pedido.total }}
-                  </span></span
-                >
+                  <span class="text-grey-darken-1">${{ pedido.total }}</span>
+                </span>
               </strong>
-              <!-- <strong>
-                <span class="text-grey-darken-3">
-                  Ultimo pedido:
-                  <span class="text-grey-darken-1"> 30-12-2025 </span></span
-                >
-              </strong> -->
             </div>
           </v-card-text>
+
           <v-card-item>
-            <div class="d-flex flex-row justify-center align-center">
-              <v-btn
-                class="text-capitalize"
-                color="primary"
-                variant="outlined"
-                size="large"
+            <div class="d-flex justify-center align-center">
+              <router-link
+                :to="`/PedidosVendedoresFull/${pedido.id}`"
+                style="text-decoration: none"
               >
-                Ver pedido completo
-              </v-btn>
-              <!-- <v-btn
-                class="text-capitalize"
-                color="success"
-                variant="text"
-                size="x-small"s
-              >
-                Pedido
-              </v-btn> -->
-              <!-- <v-btn
-                class="text-capitalize"
-                color="red"
-                variant="text"
-                size="x-small"
-              >
-                Deshabilitar
-              </v-btn> -->
+                <v-btn
+                  class="text-capitalize"
+                  color="primary"
+                  variant="outlined"
+                  size="large"
+                  block
+                >
+                  Ver pedido completo
+                </v-btn>
+              </router-link>
             </div>
           </v-card-item>
         </v-card>

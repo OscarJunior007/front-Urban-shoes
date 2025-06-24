@@ -45,6 +45,8 @@ interface Ipedido {
     total: number;
     cantidadProductos: number;
     compradores: Icomprador[];
+    subtotal: number;
+
 }
 
 interface IcardPedido extends Ipedido {
@@ -101,6 +103,8 @@ export const usePedidosStore = defineStore('Pedidos', {
             nombreVendedor: "",
             total: 0,
             compradores: [],
+            subtotal: 0
+
 
         },
         pedidoProvObj: {
@@ -125,10 +129,11 @@ export const usePedidosStore = defineStore('Pedidos', {
     actions: {
         async crearPedido(nombreVendedor: string, idVendedor: string, path: string): Promise<boolean> {
             if (path == "/RealizarPedido") {
+         
                 this.pedidoObj.vendedorId = idVendedor;
                 this.pedidoObj.nombreVendedor = nombreVendedor;
                 this.pedidoObj.cantidadProductos = this.getCantidadTotalProductosVenta();
-                this.pedidoObj.total = this.getTotalPedido();
+                this.pedidoObj.subtotal = this.getSubTotalPedido();
 
                 this.pedidoObj.compradores.forEach(comprador => {
                     if (Array.isArray(comprador.productos) && comprador.productos.length > 0) {
@@ -143,7 +148,11 @@ export const usePedidosStore = defineStore('Pedidos', {
                     this.mensaje = "Pedido realizado correctamente";
                     console.log(response.data)
                     if (response.data.status === 201 || response.status === 201) {
+                        this.pedidoObj.subtotal = 0
+                        this.pedidoObj.total = 0
+
                         return true;
+                         
                     }
                     return false;
                 } catch (error: any) {
@@ -245,7 +254,7 @@ export const usePedidosStore = defineStore('Pedidos', {
                 0
             );
         },
-        getTotalPedido(): number {
+        getSubTotalPedido(): number {
             return this.pedidoObj.compradores.reduce(
                 (total, comprador) =>
                     total + (Array.isArray(comprador.productos)

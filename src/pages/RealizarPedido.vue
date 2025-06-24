@@ -290,7 +290,7 @@
        <section>
         <v-dialog v-model="verClientes" max-width="500">
           <v-card>
-            <v-card-title v-if="listClientes.length > 0" class="text-h6">
+            <v-card-title v-if="listClientes?.length > 0" class="text-h6">
               Clientes disponibles:
             </v-card-title>
             <v-card-title v-else class="text-h6">
@@ -357,6 +357,7 @@ const userLoginStore = useUserLoginStore();
 
 
 const {listClientes} = storeToRefs(userLoginStore);
+const {clientesByVendedor} = userLoginStore;
 // watch(mensaje, (nuevoValor) => {
 //   console.log(nuevoValor);
 // });
@@ -392,6 +393,9 @@ const eliminarProducto = (item) => {
 onMounted(async () => {
   try {
     const response = await userLoginStore.getMe();
+
+    clientesByVendedor(response.data.id);
+
     if (response.status !== 200) route.push("/");
 
     console.log(response.data)
