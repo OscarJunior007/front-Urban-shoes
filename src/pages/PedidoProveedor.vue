@@ -162,16 +162,17 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { usePedidosStore } from "@/stores/Pedidos";
 import { useRoute } from "vue-router";
 import { useUserLoginStore } from "@/stores/Userlogin";
+import { storeToRefs } from "pinia";
 const valid = ref(false);
 const route = useRoute();
 const pedidoStore = usePedidosStore();
 const userStore = useUserLoginStore();
 
-const { subtotalPedidoProveedor, totalPedidoProveedor } =storeToRefs(pedidoStore);
+const { subtotalPedidoProveedor, totalPedidoProveedor } = storeToRefs(pedidoStore);
 const estados = [
   "Pedido realizado - por enviar",
   "Enviado",

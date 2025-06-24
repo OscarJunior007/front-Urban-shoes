@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { defineStore } from 'pinia';
-import { BASE_URL } from '@/router/baseUrl';
+import axios from 'axios'
+import { defineStore } from 'pinia'
+import { BASE_URL } from '@/router/baseUrl'
 interface Iinventario {
 
     precioProveedor: number

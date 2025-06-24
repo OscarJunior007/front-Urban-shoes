@@ -41,13 +41,11 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { useAppStore } from "@/stores/app";
-import { useUserLoginStore} from "@/stores/userLogin";
-
+import { useUserLoginStore } from "@/stores/Userlogin";
 
 const route = useRoute();
 const appStore = useAppStore();
 const loginStore = useUserLoginStore();
-
 </script>
 
 <style scoped>

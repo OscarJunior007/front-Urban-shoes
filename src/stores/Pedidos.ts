@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 import axios, { type AxiosResponse } from 'axios'
-import { useRoute } from 'vue-router';
-import { standardEasing } from 'vuetify/lib/util/easing.mjs';
-import { BASE_URL } from '@/router/baseUrl';
+import { BASE_URL } from '@/router/baseUrl'
 interface Izapato {
     genero: string;
     marca: string;

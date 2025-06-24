@@ -349,7 +349,7 @@
 <script setup>
 import { usePedidosStore } from "@/stores/Pedidos";
 import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useUserLoginStore } from "@/stores/Userlogin";
 import { useRoute } from "vue-router";
 import { useInventarioStore } from "@/stores/Inventario";
