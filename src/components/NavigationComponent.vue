@@ -77,6 +77,14 @@
             @click="redireccionar('/PedidosVendedores')"
             class="btn-navigation"
           ></v-list-item>
+              <v-list-item
+            v-if="objUser?.rol === 'ADMIN'"
+            prepend-icon="mdi-account-multiple-plus-outline"
+            title="Agregar Cliente"
+            value="AggCliente"
+            @click="redireccionar('/AgregarClientes')"
+            class="btn-navigation"
+          ></v-list-item>
         </v-list>
 
         <template v-slot:append>

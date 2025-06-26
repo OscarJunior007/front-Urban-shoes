@@ -1,1 +1,1 @@
-export  const BASE_URL = "http://localhost:8000/";
+export  const BASE_URL = "https://fastapi-backend-170958128041.us-central1.run.app/";

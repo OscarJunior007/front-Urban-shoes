@@ -137,10 +137,11 @@ import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserLoginStore } from "@/stores/Userlogin";
 import { useErrorSuccessStore } from "@/stores/ErrorSucces";
+import { useRouter } from "vue-router";
 const userLoginStore = useUserLoginStore();
 const { objClienteRegister, createCliente,getMe,clientesByVendedor } = userLoginStore;
 const { listClientes } = storeToRefs(userLoginStore);
-
+const router = useRouter();
 const isValid = ref(false);
 const formRef = ref();
 const errorSuccessStore = useErrorSuccessStore();
@@ -180,9 +181,10 @@ const submit = async () => {
     const response = await createCliente(idVendedor.value);
     if (response.status === 201) {
       errorSuccessStore.setSuccess("Cliente registrado exitosamente");
-      //   await createCliente();
-      //   skeletonActive.value = false;
-      //   dialog.value = false;
+      setTimeout(() => {
+        dialog.value = false;
+        window.location.reload();
+      }, 1000);
     } else {
       errorSuccessStore.setError(
         "Error al registrar usuario: " + response.data.detail

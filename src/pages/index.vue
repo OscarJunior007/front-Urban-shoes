@@ -50,7 +50,6 @@ import { useErrorSuccessStore } from '@/stores/ErrorSucces'
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import axios from 'axios'
-import AlertComponent from '@/components/AlertComponent.vue'
 import { useRouter } from 'vue-router'
 const loginStore = useUserLoginStore()
 const errorSuccessStore = useErrorSuccessStore()
